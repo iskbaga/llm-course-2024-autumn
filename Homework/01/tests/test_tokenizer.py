@@ -50,7 +50,6 @@ class TestTokenizer(TestCase):
             tokenizer.encode('aaaaababcd'),
             [259, 259, 260, 260, 99, 100]
         )
-
         tokenizer.train(data, max_vocab=262)
         self.assertEqual(
             tokenizer.encode('aaaaababcd'),

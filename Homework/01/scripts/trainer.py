@@ -52,6 +52,7 @@ class Trainer:
     >>> eval_loss = trainer.evaluate()  # Оценка модели
     >>> print(f"Потери на оценке: {eval_loss}")
     """
+
     def __init__(
             self,
             model: Model,
@@ -87,16 +88,16 @@ class Trainer:
 
     def calc_loss(self, logits: Tensor, y: Tensor) -> Tensor:
         """
-        Вычисляет потери (loss) на основе предсказанных логитов и целевых меток.
+                Вычисляет потери (loss) на основе предсказанных логитов и целевых меток.
 
-        Параметры:
-            logits (Tensor): Предсказанные моделью значения (логиты).
-            y (Tensor): Истинные целевые метки.
+                Параметры:
+                    logits (Tensor): Предсказанные моделью значения (логиты).
+                    y (Tensor): Истинные целевые метки.
 
-        Возвращает:
-            Tensor: Значение потерь.
-        """
-        return <YOUR CODE HERE>
+                Возвращает:
+                    Tensor: Значение потерь.
+                """
+        return self.loss_func(logits.view(-1, logits.size(-1)), y.view(-1))
 
     def train(self) -> None:
         """
@@ -110,8 +111,8 @@ class Trainer:
                 iterations += 1
                 self.model.train()
                 # Готовим входы (текущие токены) и выходы (следующие токены)
-                x = <YOUR CODE HERE>
-                y = <YOUR CODE HERE>
+                x = ids[:, :-1]
+                y = ids[:, 1:]
                 # Получаем логиты и считаем лосс
                 logits, _ = self.model(x)
                 loss = self.calc_loss(logits, y)
@@ -134,8 +135,8 @@ class Trainer:
         total_loss = 0.0
         for ids in self.eval_loader:
             # Готовим входы (текущие номера токенов) и выходы (следующие номера токенов)
-            x = <YOUR CODE HERE>
-            y = <YOUR CODE HERE>
+            x = ids[:, :-1]
+            y = ids[:, 1:]
             with (torch.no_grad()):
                 # Получаем логиты и считаем лосс
                 logits, _ = self.model(x)
