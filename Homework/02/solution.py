@@ -1,6 +1,5 @@
 import torch
 import torch.nn.functional as F
-from pyarrow import float32
 
 
 def compute_attention(queries, keys, values) -> torch.Tensor:
@@ -51,5 +50,16 @@ def compute_rotary_embeddings(x: torch.Tensor) -> torch.Tensor:
     - A tensor of shape (BATCH_SIZE, SEQ_LENGTH, N_HEADS, DIM_PER_HEAD)
       with rotary embeddings applied.
     """
+    y = torch.zeros_like(x)
+    _, seq_length, _, dim = x.size()
 
-    pass
+    angle = (torch.arange(seq_length).unsqueeze(1) *
+             (10000 ** (-2 * (torch.arange(dim).unsqueeze(0) // 2) / dim)))
+
+    cos_matr = torch.cos(angle).unsqueeze(0).unsqueeze(2)
+    sin_matr = torch.sin(angle).unsqueeze(0).unsqueeze(2)
+
+    y[:, :, :, ::2] = -x[:, :, :, 1::2]
+    y[:, :, :, 1::2] = x[:, :, :, ::2]
+
+    return x * cos_matr + y * sin_matr
