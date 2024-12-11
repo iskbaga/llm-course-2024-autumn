@@ -1,8 +1,8 @@
-from tqdm.auto import tqdm
+from scripts.compute_reward import compute_reward
 
 def eval_reward_model(reward_model, reward_tokenizer, test_dataset, target_label, device='cpu'):
     """
-    Evaluate the performance of a reward model by comparing reward scores for chosen and rejected reviews. 
+    Evaluate the performance of a reward model by comparing reward scores for chosen and rejected reviews.
 
     This function selects reviews from a test dataset based on a target label and evaluates the reward model's
     ability to assign higher scores to chosen reviews compared to rejected ones. The evaluation is performed
@@ -28,11 +28,14 @@ def eval_reward_model(reward_model, reward_tokenizer, test_dataset, target_label
     >>> accuracy = eval_reward_model(my_reward_model, my_reward_tokenizer, test_data, target_label=1)
     >>> print(f"Model accuracy: {accuracy:.2%}")
     """
+    chosen = [text['text'] for text in test_dataset if text['label'] == target_label]
+    rejected = [text['text'] for text in test_dataset if text['label'] != target_label]
 
-    raise NotImplementedError
+    summ = 0
 
-    # <YOUR CODE HERE>
+    for x, y in zip(chosen, rejected):
+        reward = compute_reward(reward_model, reward_tokenizer, [x, y])
+        if reward[0] > reward[1]:
+            summ += 1
 
-    assert len(chosen_reviews) == len(rejected_reviews)
-
-    # <YOUR CODE HERE>
+    return summ/len(chosen)

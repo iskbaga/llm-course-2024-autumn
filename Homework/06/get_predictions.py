@@ -14,9 +14,13 @@ def predict_by_token_id(logits: torch.Tensor, tokenizer: AutoTokenizer) -> int:
     Returns:
         int: The index of the predicted choice (0 for 'A', 1 for 'B', 2 for 'C', 3 for 'D').
     """
-    <ВАШ КОД ЗДЕСЬ>
+    options = ['A', 'B', 'C', 'D']
+    option_ids = tokenizer.convert_tokens_to_ids(options)
+    logits = logits[0, -1, :]
+    scores = logits[option_ids]
+    predicted_index = torch.argmax(scores).item()
 
-    return ...
+    return predicted_index
 
 
 def get_choice_log_probs(logits: torch.Tensor, input_ids: torch.Tensor) -> float:
@@ -31,6 +35,9 @@ def get_choice_log_probs(logits: torch.Tensor, input_ids: torch.Tensor) -> float
     Returns:
          float: The average log probability of the predicted tokens.
     """
-    <ВАШ КОД ЗДЕСЬ>
+    log_probs = F.log_softmax(logits, dim=-1)
+    predicted_log_probs = log_probs.gather(-1, input_ids.unsqueeze(-1)).squeeze(
+        -1)
+    avg_log_prob = predicted_log_probs.mean().item()
 
-    return ...
+    return avg_log_prob
