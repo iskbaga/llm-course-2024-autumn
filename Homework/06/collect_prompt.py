@@ -9,14 +9,13 @@ def create_prompt(sample: dict) -> str:
         str: A formatted string prompt for the multiple choice question.
     """
 
-    question = sample.get("question", "")
-    subject = sample.get("subject", "")
-    choices = sample.get("choices", [])
-    correct_answer_index = sample.get("answer_index", -1)
-
-    choices_text = "\n".join([f"{chr(65 + i)}) {choice}" for i, choice in enumerate(choices)])
-
-    return f"Subject: {subject}\nQuestion: {question}\nChoices:{choices_text}\nAnswer: {chr(65 + correct_answer_index)}"
+    return f"""The following are multiple choice questions (with answers) about {sample['subject']}.
+{sample['question']}
+A. {sample['choices'][0]}
+B. {sample['choices'][1]}
+C. {sample['choices'][2]}
+D. {sample['choices'][3]}
+Answer:"""
 
 
 def create_prompt_with_examples(sample: dict, examples: list, add_full_example: bool = False) -> str:
@@ -31,16 +30,18 @@ def create_prompt_with_examples(sample: dict, examples: list, add_full_example: 
     Returns:
         str: A formatted string prompt for the multiple choice question with 5 examples.
     """
-    example_texts = []
-    for example in examples:
-        question = example.get("question", "")
-        subject = example.get("subject", "")
-        choices = example.get("choices", [])
-        answer_index = example.get("answer_index", -1)
+    prompts = []
 
-        example_text = (f"Subject: {subject}\n"
-                        f"Question: {question}\n"
-                        f"Choices:{choices}\n"
-                        f"Answer: {chr(65 + answer_index)}")
-        example_texts.append(example_text)
-    return f"{example_texts}"
+    for ex in examples:
+        prompt = create_prompt(ex)
+        ans_idx = ex['answer']
+        prompt += f" {chr(ord('A') + ans_idx)}"
+        if add_full_example:
+            prompt += f". {ex['choices'][ans_idx]}"
+        prompts.append(prompt)
+
+    # Add the sample's prompt without the answer
+    prompts.append(create_prompt(sample))
+
+    return "\n\n".join(prompts)
+
