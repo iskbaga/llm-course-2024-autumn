@@ -1,5 +1,4 @@
 import random
-
 from fsm import FSM, build_odd_zeros_fsm
 
 
@@ -16,7 +15,15 @@ def get_valid_tokens(vocab: dict[int, str], eos_token_id: int, fsm: FSM, state: 
     Returns:
         valid tokens (list): list of possible tokens
     """
-    raise NotImplementedError
+    valid_tokens = []
+    for st in vocab.keys():
+        if fsm.validate_continuation(state, vocab[st]):
+            valid_tokens.append(st)
+
+    if fsm.is_terminal(state):
+        valid_tokens.append(eos_token_id)
+
+    return valid_tokens
 
 
 def random_generation() -> str:
@@ -29,22 +36,22 @@ def random_generation() -> str:
     # Define our vocabulary
     vocab = {0: "[EOS]", 1: "0", 2: "1"}
     eos_token_id = 0
-    # Init Finite-State Machine
+
     fsm, state = build_odd_zeros_fsm()
 
-    # List with generate tokens
     tokens: list[int] = []
-    # Sample until EOS token
+
     while True:
-        # 1. Get valid tokens
-        valid_tokens = ...
-        # 2. Get next token
-        next_token = ...
+        valid_tokens = get_valid_tokens(vocab, eos_token_id, fsm, state)
 
-        # 3. End generation or move to next iteration
-        ...
+        next_token = random.choice(valid_tokens)
 
-    # Convert tokens to string
+        if next_token == eos_token_id:
+            break
+
+        tokens.append(next_token)
+        state = fsm.move(vocab[next_token], state)
+
     return "".join([vocab[it] for it in tokens])
 
 
