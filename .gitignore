@@ -1,1 +1,6 @@
 **/__pycache__
+lectures_build/
+.idea/
+build/
+.DS_Store
+.vscode/
